@@ -1,0 +1,86 @@
+{
+    "horse_data": [
+        {
+            "id": "saturday_noise",
+            "name": "サタデーノイズ",
+            "gender": "male",
+            "running_style": "stalker",
+            "color": "brown",
+            "father_id": "ring",
+            "mother_id": "unknown"
+        },
+        {
+            "id": "windmill_on_hair",
+            "name": "インドミルオンヘア",
+            "gender": "female",
+            "color": "bay",
+            "running_style": "unknown",
+            "father_id": "unknown",
+            "mother_id": "unknown"
+        },
+        {
+            "id": "natural_sea",
+            "name": "ナチュラルシー",
+            "gender": "female",
+            "color": "unknown",
+            "running_style": "unknown",
+            "father_id": "unknown",
+            "mother_id": "unknown"
+        },
+        {
+            "id": "emperor_symbol",
+            "name": "エンペラーシンボル",
+            "gender": "male",
+            "color": "bay",
+            "running_style": "stalker",
+            "father_id": "partner",
+            "mother_id": "unknown"
+        },
+        {
+            "id": "east_emperte",
+            "name": "アズマノエンペルト",
+            "gender": "male",
+            "color": "bay",
+            "running_style": "stalker",
+            "father_id": "emperor_symbol",
+            "mother_id": "natural_sea"
+        },
+        {
+            "id": "reverb",
+            "name": "リヴァーブ",
+            "gender": "male",
+            "color": "bay",
+            "running_style": "stretch_runner",
+            "father_id": "saturday_noise",
+            "mother_id": "windmill_on_hair"
+        },
+        {
+            "id": "molamolaeater",
+            "name": "モラモライーター",
+            "gender": "male",
+            "color": "bay",
+            "running_style": "unknown",
+            "father_id": "mine_and_craft",
+            "mother_id": "unknown"
+        },
+        {
+            "id": "mantisgirl",
+            "name": "モラモライーター",
+            "gender": "female",
+            "color": "brown",
+            "running_style": "unknown",
+            "father_id": "unknown",
+            "mother_id": "unknown"
+        },
+        {
+            "id": "king_beam",
+            "name": "キングビーム",
+            "gender": "male",
+            "color": "bay",
+            "running_style": "unknown",
+            "father_id": "molamolaeater",
+            "mother_id": "mantisgirl"
+        }
+
+    ]
+}

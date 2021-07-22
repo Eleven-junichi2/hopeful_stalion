@@ -26,9 +26,6 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
-                self.sm.current_scene.handle_event(event)
-            self.sm.current_scene.update()
-            self.sm.current_scene.render()
             pygame.display.update()
             clock.tick(60)
 
