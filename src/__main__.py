@@ -12,6 +12,8 @@ BLACK = 0, 0, 0
 WHITE = 255, 255, 255
 KEY_REPEAT_DELAY = 125
 KEY_REPEAT_INTERVAL = 125
+asset_dir: Path = MAIN_PRG_DIR / "assets"
+
 
 class Game:
     def __init__(self):
@@ -20,7 +22,7 @@ class Game:
         pygame.display.set_caption(GAME_TITLE)
         self.screen = pygame.display.set_mode(SCRN_SIZE)
 
-    def run(self):
+    def run(self) -> None:
         clock = pygame.time.Clock()
         while True:
             for event in pygame.event.get():
@@ -34,6 +36,6 @@ def main():
     game = Game()
     game.run()
 
+
 if __name__ == "__main__":
     main()
-    
