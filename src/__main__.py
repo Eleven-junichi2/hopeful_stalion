@@ -26,15 +26,29 @@ class Game:
 
     def run(self) -> None:
         clock = pygame.time.Clock()
+
         font = pygame.font.Font(str(font_dir / "misaki_gothic.ttf"), 48)
         text_title = "ホープフルスタリオン"
         text_surface_title = font.render(text_title, False, (255, 255, 255))
+        text_title_pos = [SCRN_WIDTH / 2 - font.size(
+            text_title)[0] / 2, SCRN_HEIGHT / 2 - font.size(text_title)[1]]
+        title_was_being_showed = False
+        title_showing_delta_time = 0
+        title_showing_interval = 2
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
-            self.screen.blit(text_surface_title, (SCRN_WIDTH / 2 - font.size(
-                text_title)[0] / 2, SCRN_HEIGHT / 2 - font.size(text_title)[1]))
+            if not title_was_being_showed:
+                title_showing_delta_time += 1
+                if title_showing_delta_time % title_showing_interval == 0:
+                    text_title_pos[1] -= 5
+                if text_title_pos[1] <= SCRN_HEIGHT / 5:
+                    title_was_being_showed = True
+
+            self.screen.fill((0, 0, 0))
+            self.screen.blit(text_surface_title, text_title_pos)
             pygame.display.update()
             clock.tick(60)
 

@@ -65,7 +65,7 @@
         },
         {
             "id": "mantisgirl",
-            "name": "モラモライーター",
+            "name": "マンティスガール",
             "gender": "female",
             "color": "brown",
             "running_style": "unknown",
@@ -77,7 +77,7 @@
             "name": "キングビーム",
             "gender": "male",
             "color": "bay",
-            "running_style": "unknown",
+            "running_style": "looker",
             "father_id": "molamolaeater",
             "mother_id": "mantisgirl"
         }
