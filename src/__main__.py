@@ -12,7 +12,9 @@ BLACK = 0, 0, 0
 WHITE = 255, 255, 255
 KEY_REPEAT_DELAY = 125
 KEY_REPEAT_INTERVAL = 125
-asset_dir: Path = MAIN_PRG_DIR / "assets"
+asset_dir = MAIN_PRG_DIR / "assets"
+font_dir = asset_dir / "font"
+image_dir = asset_dir / "image"
 
 
 class Game:
@@ -24,10 +26,15 @@ class Game:
 
     def run(self) -> None:
         clock = pygame.time.Clock()
+        font = pygame.font.Font(str(font_dir / "misaki_gothic.ttf"), 48)
+        text_title = "ホープフルスタリオン"
+        text_surface_title = font.render(text_title, False, (255, 255, 255))
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
+            self.screen.blit(text_surface_title, (SCRN_WIDTH / 2 - font.size(
+                text_title)[0] / 2, SCRN_HEIGHT / 2 - font.size(text_title)[1]))
             pygame.display.update()
             clock.tick(60)
 
