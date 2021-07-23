@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+import json
 
 import pygame
 
@@ -7,6 +8,7 @@ from gamesystem import scene_trans
 
 GAME_TITLE = "Hopeful stalion"
 MAIN_PRG_DIR = Path(__file__).absolute().parent
+TRANSLATION_PATH = Path(__file__).parent / "translation"
 SCRN_WIDTH = 768  # 512*1.5
 SCRN_HEIGHT = 651  # 434*1.5
 SCRN_SIZE = SCRN_WIDTH, SCRN_HEIGHT
@@ -25,10 +27,24 @@ sound_effect_dir = sound_dir / "se"
 
 # TODO: how to use and management game assets in the program
 
+
+class GameLocalizedText:
+    def __init__(self):
+        self.texts = {}
+        with open(str(TRANSLATION_PATH / "jp.json"), "r",
+                  encoding="utf-8_sig") as f:
+            self.texts["jp"] = json.load(f)
+        with open(str(TRANSLATION_PATH / "en.json"), "r",
+                  encoding="utf-8_sig") as f:
+            self.texts["en"] = json.load(f)
+
+    def get_text(self, text_key, language):
+        return self.texts[language][text_key]
+
+
 class GameSceneManager(scene_trans.SceneManager):
     def __init__(self, screen: pygame.Surface, game):
         super().__init__()
-        self.screen = screen
         self.game = game
 
 
@@ -97,7 +113,7 @@ class TitleScene(scene_trans.Scene):
                     sys.exit()
 
     def run(self, dt):
-        self.sm.screen.fill((0, 0, 0))
+        self.sm.game.screen.fill((0, 0, 0))
         if not self.title_was_being_showed:
             self.title_showing_delta_frame += 1
             if self.title_showing_delta_frame % self.title_showing_interval == 0:
@@ -106,15 +122,15 @@ class TitleScene(scene_trans.Scene):
                 pygame.mixer.music.play(-1, fade_ms=7800)
                 self.title_was_being_showed = True
         if self.title_was_being_showed:
-            self.sm.screen.blit(self.text_surface_start_game,
-                             self.text_titlemenu["start_game"]["pos"])
-            self.sm.screen.blit(self.text_surface_game_config,
-                             self.text_titlemenu["game_config"]["pos"])
-            self.sm.screen.blit(self.text_surface_exit,
-                             self.text_titlemenu["exit"]["pos"])
-            self.sm.screen.blit(self.text_surface_menu_cursor,
-                             self.calc_menu_cursor_pos())
-        self.sm.screen.blit(self.text_surface_title, self.text_title_pos)
+            self.sm.game.screen.blit(self.text_surface_start_game,
+                                self.text_titlemenu["start_game"]["pos"])
+            self.sm.game.screen.blit(self.text_surface_game_config,
+                                self.text_titlemenu["game_config"]["pos"])
+            self.sm.game.screen.blit(self.text_surface_exit,
+                                self.text_titlemenu["exit"]["pos"])
+            self.sm.game.screen.blit(self.text_surface_menu_cursor,
+                                self.calc_menu_cursor_pos())
+        self.sm.game.screen.blit(self.text_surface_title, self.text_title_pos)
 
 
 class ConfigScene(scene_trans.Scene):
@@ -125,7 +141,8 @@ class ConfigScene(scene_trans.Scene):
         pass
 
     def run(self, dt):
-        pass    
+        pass
+
 
 class Game:
     def __init__(self):
@@ -134,7 +151,7 @@ class Game:
         pygame.display.set_caption(GAME_TITLE)
         self.screen = pygame.display.set_mode(SCRN_SIZE)
         self.clock = pygame.time.Clock()
-        self.gametext = {}  # TODO: make masterdata of text and translation
+        self.gametext = GameLocalizedText()
         self.sm = GameSceneManager(self.screen, self)
         self.sm.append_scene("title", TitleScene(self.sm))
         self.sm.set_current_scene("title")
