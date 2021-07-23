@@ -26,8 +26,6 @@ sound_dir = asset_dir / "sound"
 music_dir = sound_dir / "music"
 sound_effect_dir = sound_dir / "se"
 
-# TODO: how to use and management game assets in the program
-
 
 class GameConfig:
     def __init__(self):
@@ -61,10 +59,20 @@ class GameSceneManager(scene_trans.SceneManager):
         self.game = game
 
 
+class ConfigScene(scene_trans.Scene):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def handle_event(self, event):
+        pass
+
+    def run(self, dt):
+        self.sm.game.screen.fill((0, 0, 0))
+
+
 class TitleScene(scene_trans.Scene):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        pygame.mixer.init(frequency=44100)
         pygame.mixer.music.load(str(music_dir / "hopeful_stalion_theme.ogg"))
 
         self.font_title = pygame.font.Font(
@@ -124,6 +132,8 @@ class TitleScene(scene_trans.Scene):
             elif event.key == pygame.K_z:
                 if self.titlemenu_keys[self.current_menu_choice] == "exit":
                     sys.exit()
+                if self.titlemenu_keys[self.current_menu_choice] == "game_config":
+                    self.sm.set_current_scene("config")
 
     def run(self, dt):
         self.sm.game.screen.fill((0, 0, 0))
@@ -146,20 +156,10 @@ class TitleScene(scene_trans.Scene):
         self.sm.game.screen.blit(self.text_surface_title, self.text_title_pos)
 
 
-class ConfigScene(scene_trans.Scene):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def handle_event(self, event):
-        pass
-
-    def run(self, dt):
-        pass
-
-
 class Game:
     def __init__(self):
         pygame.init()
+        pygame.mixer.init(frequency=44100)
         pygame.key.set_repeat(KEY_REPEAT_DELAY, KEY_REPEAT_INTERVAL)
         pygame.display.set_caption(GAME_TITLE)
         self.screen = pygame.display.set_mode(SCRN_SIZE)
@@ -169,6 +169,7 @@ class Game:
         self.gametext.language = self.gameconfig.config["language"]
         self.sm = GameSceneManager(self.screen, self)
         self.sm.append_scene("title", TitleScene(self.sm))
+        self.sm.append_scene("config", ConfigScene(self.sm))
         self.sm.set_current_scene("title")
 
     def run(self) -> None:
