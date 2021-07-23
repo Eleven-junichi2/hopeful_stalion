@@ -8,7 +8,8 @@ from gamesystem import scene_trans
 
 GAME_TITLE = "Hopeful stalion"
 MAIN_PRG_DIR = Path(__file__).absolute().parent
-TRANSLATION_PATH = Path(__file__).parent / "translation"
+TRANSLATION_DIR = Path(__file__).parent / "translation"
+CONFIG_PATH = MAIN_PRG_DIR / "config.json"
 SCRN_WIDTH = 768  # 512*1.5
 SCRN_HEIGHT = 651  # 434*1.5
 SCRN_SIZE = SCRN_WIDTH, SCRN_HEIGHT
@@ -28,18 +29,30 @@ sound_effect_dir = sound_dir / "se"
 # TODO: how to use and management game assets in the program
 
 
-class GameLocalizedText:
+class GameConfig:
     def __init__(self):
+        self.config = {}
+        self.reload()
+
+    def reload(self) -> dict:
+        with open(str(CONFIG_PATH),
+                  encoding="utf-8_sig") as f:
+            self.config = json.load(f)
+
+
+class GameLocalizedText:
+    def __init__(self, language="jp"):
+        self.language = language
         self.texts = {}
-        with open(str(TRANSLATION_PATH / "jp.json"), "r",
+        with open(str(TRANSLATION_DIR / "jp.json"), "r",
                   encoding="utf-8_sig") as f:
             self.texts["jp"] = json.load(f)
-        with open(str(TRANSLATION_PATH / "en.json"), "r",
+        with open(str(TRANSLATION_DIR / "en.json"), "r",
                   encoding="utf-8_sig") as f:
             self.texts["en"] = json.load(f)
 
-    def get_text(self, text_key, language):
-        return self.texts[language][text_key]
+    def get_text(self, text_key) -> str:
+        return self.texts[self.language][text_key]
 
 
 class GameSceneManager(scene_trans.SceneManager):
@@ -57,7 +70,7 @@ class TitleScene(scene_trans.Scene):
         self.font_title = pygame.font.Font(
             str(font_dir / "misaki_gothic.ttf"), 48)
 
-        self.text_title = "ホープフルスタリオン"
+        self.text_title = self.sm.game.gametext.get_text("title")
         self.text_surface_title = self.font_title.render(
             self.text_title, False, WHITE)
         self.text_title_pos = [SCRN_WIDTH / 2 - self.font_title.size(
@@ -123,13 +136,13 @@ class TitleScene(scene_trans.Scene):
                 self.title_was_being_showed = True
         if self.title_was_being_showed:
             self.sm.game.screen.blit(self.text_surface_start_game,
-                                self.text_titlemenu["start_game"]["pos"])
+                                     self.text_titlemenu["start_game"]["pos"])
             self.sm.game.screen.blit(self.text_surface_game_config,
-                                self.text_titlemenu["game_config"]["pos"])
+                                     self.text_titlemenu["game_config"]["pos"])
             self.sm.game.screen.blit(self.text_surface_exit,
-                                self.text_titlemenu["exit"]["pos"])
+                                     self.text_titlemenu["exit"]["pos"])
             self.sm.game.screen.blit(self.text_surface_menu_cursor,
-                                self.calc_menu_cursor_pos())
+                                     self.calc_menu_cursor_pos())
         self.sm.game.screen.blit(self.text_surface_title, self.text_title_pos)
 
 
@@ -152,6 +165,8 @@ class Game:
         self.screen = pygame.display.set_mode(SCRN_SIZE)
         self.clock = pygame.time.Clock()
         self.gametext = GameLocalizedText()
+        self.gameconfig = GameConfig()
+        self.gametext.language = self.gameconfig.config["language"]
         self.sm = GameSceneManager(self.screen, self)
         self.sm.append_scene("title", TitleScene(self.sm))
         self.sm.set_current_scene("title")
