@@ -3,6 +3,8 @@ import sys
 
 import pygame
 
+from gamesystem import scene_trans
+
 GAME_TITLE = "Hopeful stalion"
 MAIN_PRG_DIR = Path(__file__).absolute().parent
 SCRN_WIDTH = 768  # 512*1.5
@@ -22,6 +24,18 @@ music_dir = sound_dir / "music"
 sound_effect_dir = sound_dir / "se"
 
 
+class GameSceneManager(scene_trans.SceneManager):
+    def __init__(self, screen: pygame.Surface, game):
+        super().__init__()
+        self.screen = screen
+        self.game = game
+
+
+class TitleScene(scene_trans.Scene):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
 class Game:
     def __init__(self):
         pygame.init()
@@ -30,6 +44,9 @@ class Game:
         self.screen = pygame.display.set_mode(SCRN_SIZE)
         self.clock = pygame.time.Clock()
         self.gametext = {}  # TODO: make masterdata of text and translation
+        self.sm = GameSceneManager(self.screen, self)
+        self.sm.append_scene("title", TitleScene(self.sm))
+        self.sm.set_current_scene("title")
 
     def run(self) -> None:
         pygame.mixer.init(frequency=44100)
@@ -77,9 +94,10 @@ class Game:
         current_menu_choice: int = 0
         text_surface_menu_cursor = font_titlemenu.render(
             text_menu_cursor, False, WHITE)
+
         def text_menu_cursor_pos():
             return [text_titlemenu["start_game"]["pos"][0] - font_menu_cursor.size(
-                        text_menu_cursor)[0], text_titlemenu[titlemenu_keys[current_menu_choice]]["pos"][1]]
+                text_menu_cursor)[0], text_titlemenu[titlemenu_keys[current_menu_choice]]["pos"][1]]
         # TODO: make scene transition
         while True:
             self.screen.fill((0, 0, 0))
@@ -95,6 +113,8 @@ class Game:
                     elif event.key == pygame.K_z:
                         if titlemenu_keys[current_menu_choice] == "exit":
                             sys.exit()
+                self.sm.current_scene.handle_event(event)
+            self.sm.current_scene.run(dt)
             if not title_was_being_showed:
                 title_showing_delta_frame += 1
                 if title_showing_delta_frame % title_showing_interval == 0:
