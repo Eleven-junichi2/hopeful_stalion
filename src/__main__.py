@@ -23,6 +23,7 @@ sound_dir = asset_dir / "sound"
 music_dir = sound_dir / "music"
 sound_effect_dir = sound_dir / "se"
 
+# TODO: how to use and management game assets in the program
 
 class GameSceneManager(scene_trans.SceneManager):
     def __init__(self, screen: pygame.Surface, game):
@@ -116,6 +117,16 @@ class TitleScene(scene_trans.Scene):
         self.sm.screen.blit(self.text_surface_title, self.text_title_pos)
 
 
+class ConfigScene(scene_trans.Scene):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def handle_event(self, event):
+        pass
+
+    def run(self, dt):
+        pass    
+
 class Game:
     def __init__(self):
         pygame.init()
@@ -130,7 +141,7 @@ class Game:
 
     def run(self) -> None:
         while True:
-            dt = self.clock.tick(60) * 0.001 * TARGET_FPS  # delta time
+            dt = self.clock.tick(TARGET_FPS) * 0.001 * TARGET_FPS  # delta time
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
