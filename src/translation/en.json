@@ -1,4 +1,9 @@
 {
     "title": "Hopeful Stalion",
-    "": ""
+    "config_head_lang": "Language",
+    "cancel_config": "Cancel",
+    "confirm_config": "Confirm",
+    "title_exit": "Exit",
+    "title_game_start": "Start",
+    "title_config": "Settings"
 }

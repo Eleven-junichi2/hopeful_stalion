@@ -1,4 +1,9 @@
 {
     "title": "ホープフルスタリオン",
-    "": ""
+    "config_head_lang": "言語",
+    "cancel_config": "変更せずに戻る",
+    "confirm_config": "設定を適応する",
+    "title_exit": "終了",
+    "title_game_start": "始める",
+    "title_config": "設定"
 }
