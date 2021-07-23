@@ -80,7 +80,7 @@ class Game:
         def text_menu_cursor_pos():
             return [text_titlemenu["start_game"]["pos"][0] - font_menu_cursor.size(
                         text_menu_cursor)[0], text_titlemenu[titlemenu_keys[current_menu_choice]]["pos"][1]]
-
+        # TODO: make scene transition
         while True:
             self.screen.fill((0, 0, 0))
             dt = self.clock.tick(60) * 0.001 * TARGET_FPS  # delta time
@@ -92,6 +92,9 @@ class Game:
                         current_menu_choice -= 1
                     elif event.key == pygame.K_DOWN and current_menu_choice < titlemenu_list_max_index:
                         current_menu_choice += 1
+                    elif event.key == pygame.K_z:
+                        if titlemenu_keys[current_menu_choice] == "exit":
+                            sys.exit()
             if not title_was_being_showed:
                 title_showing_delta_frame += 1
                 if title_showing_delta_frame % title_showing_interval == 0:
