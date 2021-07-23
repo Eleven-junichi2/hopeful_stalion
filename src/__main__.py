@@ -59,6 +59,7 @@ class GameSceneManager(scene_trans.SceneManager):
         self.game = game
 
 # TODO: make config scene
+# TODO: make GameMenu class to refactoring code
 
 
 class ConfigScene(scene_trans.Scene):
@@ -66,24 +67,36 @@ class ConfigScene(scene_trans.Scene):
         super().__init__(*args, **kwargs)
 
         self.font_menu_cursor = pygame.font.Font(
-            str(font_dir / "misaki_gothic.ttf"), 32)
+            str(font_dir / "misaki_gothic.ttf"), 24)
         self.text_menu_cursor = "->"
         self.current_menu_choice: int = 0
         self.text_surface_menu_cursor = self.font_menu_cursor.render(
             self.text_menu_cursor, False, WHITE)
 
         self.font_menu = pygame.font.Font(
-            str(font_dir / "misaki_gothic.ttf"), 32)
-        text_cancel_config = self.sm.game.gametext.get_text("cancel_config")
-        self.text_cancel_config_pos = [SCRN_WIDTH / 2.5 - self.font_menu.size(text_cancel_config)[
-            0] / 2, SCRN_HEIGHT / 4 - self.font_menu.size(text_cancel_config)[1] / 2]
+            str(font_dir / "misaki_gothic.ttf"), 24)
+
+        self.text_config_menu = {"cancel_config": {"text": self.sm.game.gametext.get_text("cancel_config"), "pos": None},
+                                 "confirm_config": {"text": self.sm.game.gametext.get_text("confirm_config"), "pos": None},
+                                 "lang": {"text": f"{self.sm.game.gametext.get_text('config_head_lang')}: {self.text_from_language_config()}", "pos": None}, }
+
+        self.text_config_menu["cancel_config"]["pos"] = [SCRN_WIDTH / 2.5 - self.font_menu.size(self.text_config_menu["cancel_config"]["text"])[
+            0] / 2, SCRN_HEIGHT / 4 - self.font_menu.size(self.text_config_menu["cancel_config"]["text"])[1] / 2]
         self.text_surface_cancel_config = self.font_menu.render(
-            text_cancel_config, False, WHITE)
-        # text_confrim_config = self.sm.game.gametext.get_text("confirm_config")
-        text_lang = f"{self.sm.game.gametext.get_text('config_head_lang')}: {self.text_from_language_config()}"
-        self.text_lang_pos = [self.text_cancel_config_pos[0], self.text_cancel_config_pos[1] + 8 + self.font_menu.size(text_lang)[1]]
+            self.text_config_menu["cancel_config"]["text"], False, WHITE)
+
+        self.text_config_menu["confirm_config"]["pos"] = [self.text_config_menu["cancel_config"]["pos"][0],
+                                                          self.text_config_menu["cancel_config"]["pos"][1] + 8 + self.font_menu.size(self.text_config_menu["confirm_config"]["text"])[1]]
+        self.text_surface_confirm_config = self.font_menu.render(
+            self.text_config_menu["confirm_config"]["text"], False, WHITE)
+
+        self.text_config_menu["lang"]["pos"] = [self.text_config_menu["cancel_config"]["pos"][0],
+                                                self.text_config_menu["confirm_config"]["pos"][1] + 8 + self.font_menu.size(self.text_config_menu["lang"]["text"])[1]]
         self.text_surface_lang = self.font_menu.render(
-            text_lang, False, WHITE)
+            self.text_config_menu["lang"]["text"], False, WHITE)
+
+        self.config_menu_keys = list(self.text_config_menu.keys())
+        self.config_menu_list_max_index = len(self.config_menu_keys) - 1
 
     def text_from_language_config(self):
         language = self.sm.game.gameconfig.config["language"]
@@ -93,23 +106,36 @@ class ConfigScene(scene_trans.Scene):
             result = "English"
         return result
 
+    def calc_menu_cursor_pos(self):
+        return [self.text_config_menu["cancel_config"]["pos"][0] - self.font_menu_cursor.size(
+            self.text_menu_cursor)[0], self.text_config_menu[self.config_menu_keys[self.current_menu_choice]]["pos"][1]]
+
     def handle_event(self, event):
-        # if event.type == pygame.KEYDOWN:
-        #     if event.key == pygame.K_UP and self.current_menu_choice > 0:
-        #         self.current_menu_choice -= 1
-        #     elif event.key == pygame.K_DOWN and self.current_menu_choice < self.menu_list_max_index:
-        #         self.current_menu_choice += 1
-        #     elif event.key == pygame.K_z:
-        #         if self.menu_keys[self.current_menu_choice] == "exit":
-        #             sys.exit()
-        #         if self.menu_keys[self.current_menu_choice] == "game_config":
-        #             self.sm.set_current_scene("config")
-        pass
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP and self.current_menu_choice > 0:
+                self.current_menu_choice -= 1
+            elif event.key == pygame.K_DOWN and self.current_menu_choice < self.config_menu_list_max_index:
+                self.current_menu_choice += 1
+            elif event.key == pygame.K_z:
+                if self.config_menu_keys[self.current_menu_choice] == "cancel_config":
+                    self.sm.set_current_scene("title")
+                if self.config_menu_keys[self.current_menu_choice] == "confirm_config":
+                    self.sm.set_current_scene("title")
+                if self.config_menu_keys[self.current_menu_choice] == "lang":
+                    pass
 
     def run(self, dt):
         self.sm.game.screen.fill((0, 0, 0))
-        self.sm.game.screen.blit(self.text_surface_cancel_config, self.text_cancel_config_pos)
-        self.sm.game.screen.blit(self.text_surface_lang, self.text_lang_pos)
+        self.sm.game.screen.blit(
+            self.text_surface_cancel_config, self.text_config_menu["cancel_config"]["pos"])
+        self.sm.game.screen.blit(
+            self.text_surface_confirm_config, self.text_config_menu["confirm_config"]["pos"])
+        self.sm.game.screen.blit(
+            self.text_surface_lang, self.text_config_menu["lang"]["pos"])
+        # self.sm.game.screen.blit(
+            # self.text_surface_lang, self.text_config_menu["volume"]["pos"])
+        self.sm.game.screen.blit(self.text_surface_menu_cursor,
+                                 self.calc_menu_cursor_pos())
 
 
 class TitleScene(scene_trans.Scene):
