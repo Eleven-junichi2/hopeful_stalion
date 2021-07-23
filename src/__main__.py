@@ -34,6 +34,86 @@ class GameSceneManager(scene_trans.SceneManager):
 class TitleScene(scene_trans.Scene):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        pygame.mixer.init(frequency=44100)
+        pygame.mixer.music.load(str(music_dir / "hopeful_stalion_theme.ogg"))
+
+        self.font_title = pygame.font.Font(
+            str(font_dir / "misaki_gothic.ttf"), 48)
+
+        self.text_title = "ホープフルスタリオン"
+        self.text_surface_title = self.font_title.render(
+            self.text_title, False, WHITE)
+        self.text_title_pos = [SCRN_WIDTH / 2 - self.font_title.size(
+            self.text_title)[0] / 2, SCRN_HEIGHT / 2 - self.font_title.size(self.text_title)[1]]
+        self.title_was_being_showed = False
+        self.title_showing_delta_frame = 0
+        self.title_showing_interval = 2
+
+        self.font_titlemenu = pygame.font.Font(
+            str(font_dir / "misaki_gothic.ttf"), 24)
+        self.text_titlemenu = {"start_game": {"text": "スタート", "pos": None},
+                               "game_config": {"text": "設定", "pos": None},
+                               "exit": {"text": "終了", "pos": None}}
+        self.text_titlemenu["start_game"]["pos"] = [
+            SCRN_WIDTH / 2.1 - self.font_titlemenu.size(
+                self.text_titlemenu["start_game"]["text"])[0] / 2,
+            SCRN_HEIGHT / 3 + self.font_titlemenu.size(self.text_titlemenu["start_game"]["text"])[1]]
+        self.text_titlemenu["game_config"]["pos"] = [
+            self.text_titlemenu["start_game"]["pos"][0],
+            self.text_titlemenu["start_game"]["pos"][1] + 16 + self.font_titlemenu.size(self.text_titlemenu["game_config"]["text"][1])[1]]
+        self.text_titlemenu["exit"]["pos"] = [
+            self.text_titlemenu["start_game"]["pos"][0],
+            self.text_titlemenu["game_config"]["pos"][1] + 16 + self.font_titlemenu.size(self.text_titlemenu["exit"]["text"][1])[1]]
+        self.text_surface_start_game = self.font_titlemenu.render(
+            self.text_titlemenu["start_game"]["text"], False, WHITE)
+        self.text_surface_game_config = self.font_titlemenu.render(
+            self.text_titlemenu["game_config"]["text"], False, WHITE)
+        self.text_surface_exit = self.font_titlemenu.render(
+            self.text_titlemenu["exit"]["text"], False, WHITE)
+
+        self.titlemenu_keys = list(self.text_titlemenu.keys())
+        self.titlemenu_list_max_index = len(self.titlemenu_keys) - 1
+
+        self.font_menu_cursor = pygame.font.Font(
+            str(font_dir / "misaki_gothic.ttf"), 24)
+        self.text_menu_cursor = "->"
+        self.current_menu_choice: int = 0
+        self.text_surface_menu_cursor = self.font_titlemenu.render(
+            self.text_menu_cursor, False, WHITE)
+
+    def calc_menu_cursor_pos(self):
+        return [self.text_titlemenu["start_game"]["pos"][0] - self.font_menu_cursor.size(
+            self.text_menu_cursor)[0], self.text_titlemenu[self.titlemenu_keys[self.current_menu_choice]]["pos"][1]]
+
+    def handle_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP and self.current_menu_choice > 0:
+                self.current_menu_choice -= 1
+            elif event.key == pygame.K_DOWN and self.current_menu_choice < self.titlemenu_list_max_index:
+                self.current_menu_choice += 1
+            elif event.key == pygame.K_z:
+                if self.titlemenu_keys[self.current_menu_choice] == "exit":
+                    sys.exit()
+
+    def run(self, dt):
+        self.sm.screen.fill((0, 0, 0))
+        if not self.title_was_being_showed:
+            self.title_showing_delta_frame += 1
+            if self.title_showing_delta_frame % self.title_showing_interval == 0:
+                self.text_title_pos[1] -= 5 * dt
+            if self.text_title_pos[1] <= SCRN_HEIGHT / 5:
+                pygame.mixer.music.play(-1, fade_ms=7800)
+                self.title_was_being_showed = True
+        if self.title_was_being_showed:
+            self.sm.screen.blit(self.text_surface_start_game,
+                             self.text_titlemenu["start_game"]["pos"])
+            self.sm.screen.blit(self.text_surface_game_config,
+                             self.text_titlemenu["game_config"]["pos"])
+            self.sm.screen.blit(self.text_surface_exit,
+                             self.text_titlemenu["exit"]["pos"])
+            self.sm.screen.blit(self.text_surface_menu_cursor,
+                             self.calc_menu_cursor_pos())
+        self.sm.screen.blit(self.text_surface_title, self.text_title_pos)
 
 
 class Game:
@@ -49,89 +129,13 @@ class Game:
         self.sm.set_current_scene("title")
 
     def run(self) -> None:
-        pygame.mixer.init(frequency=44100)
-        pygame.mixer.music.load(str(music_dir / "hopeful_stalion_theme.ogg"))
-
-        font_title = pygame.font.Font(str(font_dir / "misaki_gothic.ttf"), 48)
-
-        text_title = "ホープフルスタリオン"
-        text_surface_title = font_title.render(
-            text_title, False, WHITE)
-        text_title_pos = [SCRN_WIDTH / 2 - font_title.size(
-            text_title)[0] / 2, SCRN_HEIGHT / 2 - font_title.size(text_title)[1]]
-        title_was_being_showed = False
-        title_showing_delta_frame = 0
-        title_showing_interval = 2
-
-        font_titlemenu = pygame.font.Font(
-            str(font_dir / "misaki_gothic.ttf"), 24)
-        text_titlemenu = {"start_game": {"text": "スタート", "pos": None},
-                          "game_config": {"text": "設定", "pos": None},
-                          "exit": {"text": "終了", "pos": None}}
-        text_titlemenu["start_game"]["pos"] = [
-            SCRN_WIDTH / 2.1 - font_titlemenu.size(
-                text_titlemenu["start_game"]["text"])[0] / 2,
-            SCRN_HEIGHT / 3 + font_titlemenu.size(text_titlemenu["start_game"]["text"])[1]]
-        text_titlemenu["game_config"]["pos"] = [
-            text_titlemenu["start_game"]["pos"][0],
-            text_titlemenu["start_game"]["pos"][1] + 16 + font_titlemenu.size(text_titlemenu["game_config"]["text"][1])[1]]
-        text_titlemenu["exit"]["pos"] = [
-            text_titlemenu["start_game"]["pos"][0],
-            text_titlemenu["game_config"]["pos"][1] + 16 + font_titlemenu.size(text_titlemenu["exit"]["text"][1])[1]]
-        text_surface_start_game = font_titlemenu.render(
-            text_titlemenu["start_game"]["text"], False, WHITE)
-        text_surface_game_config = font_titlemenu.render(
-            text_titlemenu["game_config"]["text"], False, WHITE)
-        text_surface_exit = font_titlemenu.render(
-            text_titlemenu["exit"]["text"], False, WHITE)
-
-        titlemenu_keys = list(text_titlemenu.keys())
-        titlemenu_list_max_index = len(titlemenu_keys) - 1
-
-        font_menu_cursor = pygame.font.Font(
-            str(font_dir / "misaki_gothic.ttf"), 24)
-        text_menu_cursor = "->"
-        current_menu_choice: int = 0
-        text_surface_menu_cursor = font_titlemenu.render(
-            text_menu_cursor, False, WHITE)
-
-        def text_menu_cursor_pos():
-            return [text_titlemenu["start_game"]["pos"][0] - font_menu_cursor.size(
-                text_menu_cursor)[0], text_titlemenu[titlemenu_keys[current_menu_choice]]["pos"][1]]
-        # TODO: make scene transition
         while True:
-            self.screen.fill((0, 0, 0))
             dt = self.clock.tick(60) * 0.001 * TARGET_FPS  # delta time
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_UP and current_menu_choice > 0:
-                        current_menu_choice -= 1
-                    elif event.key == pygame.K_DOWN and current_menu_choice < titlemenu_list_max_index:
-                        current_menu_choice += 1
-                    elif event.key == pygame.K_z:
-                        if titlemenu_keys[current_menu_choice] == "exit":
-                            sys.exit()
                 self.sm.current_scene.handle_event(event)
             self.sm.current_scene.run(dt)
-            if not title_was_being_showed:
-                title_showing_delta_frame += 1
-                if title_showing_delta_frame % title_showing_interval == 0:
-                    text_title_pos[1] -= 5 * dt
-                if text_title_pos[1] <= SCRN_HEIGHT / 5:
-                    pygame.mixer.music.play(-1, fade_ms=7800)
-                    title_was_being_showed = True
-            if title_was_being_showed:
-                self.screen.blit(text_surface_start_game,
-                                 text_titlemenu["start_game"]["pos"])
-                self.screen.blit(text_surface_game_config,
-                                 text_titlemenu["game_config"]["pos"])
-                self.screen.blit(text_surface_exit,
-                                 text_titlemenu["exit"]["pos"])
-                self.screen.blit(text_surface_menu_cursor,
-                                 text_menu_cursor_pos())
-            self.screen.blit(text_surface_title, text_title_pos)
             pygame.display.update()
 
 
