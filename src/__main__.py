@@ -61,6 +61,9 @@ class GameSceneManager(scene_trans.SceneManager):
 # TODO: make config scene
 # TODO: make GameMenu class to refactoring code
 
+class GameMenu:
+    """This class makes it easier to code menu UI behavior."""
+
 
 class ConfigScene(scene_trans.Scene):
     def __init__(self, *args, **kwargs):
