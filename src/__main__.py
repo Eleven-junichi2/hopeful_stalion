@@ -61,8 +61,13 @@ class GameSceneManager(scene_trans.SceneManager):
 # TODO: make config scene
 # TODO: make GameMenu class to refactoring code
 
+
 class GameMenu:
     """This class makes it easier to code menu UI behavior."""
+
+class NewGameScene(scene_trans.Scene):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
 class ConfigScene(scene_trans.Scene):
@@ -136,7 +141,7 @@ class ConfigScene(scene_trans.Scene):
         self.sm.game.screen.blit(
             self.text_surface_lang, self.text_config_menu["lang"]["pos"])
         # self.sm.game.screen.blit(
-            # self.text_surface_lang, self.text_config_menu["volume"]["pos"])
+        # self.text_surface_lang, self.text_config_menu["volume"]["pos"])
         self.sm.game.screen.blit(self.text_surface_menu_cursor,
                                  self.calc_menu_cursor_pos())
 
