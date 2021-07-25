@@ -71,16 +71,17 @@ class GameMenu:
         self.home_pos: list = [None, None]
 
     def set_home_pos_of_ui(self, pos_x, pos_y):
-        self.home_pos[pos_x, pos_y]
+        self.home_pos[0] = pos_x
+        self.home_pos[1] = pos_y
 
     def unset_home_pos_of_ui(self):
         self.home_pos = [None, None]
 
     def add_to_menu(self, menu_key: str, menu_text: str, pos_x_to_display: int = None, pos_y_to_display: int = None):
         """If home_pos is set, arguments set position relative to home_pos."""
-        self.menu[menu_key]["text"] = menu_text
-        self.menu[menu_key]["pos"] = [self.home_pos[0] or 0 + pos_x_to_display or 0,
-                                      self.home_pos[1] or 0 + pos_y_to_display or 0]
+        self.menu[menu_key] = {"text": menu_text,
+                               "pos": [self.home_pos[0] or 0 + pos_x_to_display or 0,
+                                       self.home_pos[1] or 0 + pos_y_to_display or 0]}
 
     def menu_keys(self) -> list:
         return list[self.menu.keys()]
