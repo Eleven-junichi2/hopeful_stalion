@@ -65,6 +65,17 @@ class GameSceneManager(scene_trans.SceneManager):
 class GameMenu:
     """This class makes it easier to code menu UI behavior."""
 
+    def __init__(self, current_choice: int = 0):
+        self.current_choice = current_choice
+        self.menu: dict[str] = {}
+
+    def add_to_menu(self, menu_key, menu_text):
+        self.menu.append(menu_text)
+    
+    def menu_keys(self):
+        return self.menu.keys()
+
+
 class NewGameScene(scene_trans.Scene):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
