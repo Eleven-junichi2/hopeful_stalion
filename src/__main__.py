@@ -66,14 +66,27 @@ class GameMenu:
     """This class makes it easier to code menu UI behavior."""
 
     def __init__(self, current_choice: int = 0):
-        self.current_choice = current_choice
+        self.current_choice: int = current_choice
         self.menu: dict[str] = {}
+        self.home_pos: list = [None, None]
 
-    def add_to_menu(self, menu_key, menu_text):
-        self.menu.append(menu_text)
-    
-    def menu_keys(self):
-        return self.menu.keys()
+    def set_home_pos_of_ui(self, pos_x, pos_y):
+        self.home_pos[pos_x, pos_y]
+
+    def unset_home_pos_of_ui(self):
+        self.home_pos = [None, None]
+
+    def add_to_menu(self, menu_key: str, menu_text: str, pos_x_to_display: int = None, pos_y_to_display: int = None):
+        """If home_pos is set, arguments set position relative to home_pos."""
+        self.menu[menu_key]["text"] = menu_text
+        self.menu[menu_key]["pos"] = [self.home_pos[0] or 0 + pos_x_to_display or 0,
+                                      self.home_pos[1] or 0 + pos_y_to_display or 0]
+
+    def menu_keys(self) -> list:
+        return list[self.menu.keys()]
+
+    def current_choice_menu_key(self) -> str:
+        return self.menu_keys()[self.current_choice]
 
 
 class NewGameScene(scene_trans.Scene):
@@ -176,6 +189,20 @@ class TitleScene(scene_trans.Scene):
 
         self.font_titlemenu = pygame.font.Font(
             str(font_dir / "misaki_gothic.ttf"), 24)
+
+        self.title_menu = GameMenu()
+        self.title_menu.set_home_pos_of_ui(
+            SCRN_WIDTH / 2.1 -
+            self.font_titlemenu.size(
+                self.sm.game.gametext.get_text("title_game_start"))[0] / 2,
+            SCRN_HEIGHT / 3 + self.font_titlemenu.size(self.sm.game.gametext.get_text("title_game_start"))[1])
+        self.title_menu.add_to_menu(
+            "start_game", self.sm.game.gametext.get_text("title_game_start"))
+        self.title_menu.add_to_menu(
+            "game_config", self.sm.game.gametext.get_text("title_config"))
+        self.title_menu.add_to_menu(
+            "exit", self.sm.game.gametext.get_text("title_exit"))
+
         self.text_titlemenu = {"start_game": {"text": self.sm.game.gametext.get_text("title_game_start"), "pos": None},
                                "game_config": {"text": self.sm.game.gametext.get_text("title_config"), "pos": None},
                                "exit": {"text": self.sm.game.gametext.get_text("title_exit"), "pos": None}}
