@@ -97,13 +97,18 @@ class TextWidget(Widget):
         return self.font.render(self.text, *args, **kwargs)
 
 
-class UIBoxLayout(Widget):
+class Layout(Widget):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.layout: list[Widget] = []
+
+
+class UIBoxLayout(Layout):
     """This class makes it easier to lay out Widgets"""
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.orientaion = "vertical"
-        self.layout = []
         self.spacing = 0
 
     def add_widget(self, widget: Widget):
@@ -126,8 +131,23 @@ class UIBoxLayout(Widget):
             pass
 
 
+class GameMenuWithUI:
+    # TODO: make a class that can choose widgets from a layout instead of this.
+    def __init__(self, layout_widget: Layout, default_menu_choice: int = 0,
+                 *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.layout_widget = layout_widget
+        self.current_choice_num = default_menu_choice
+
+    def choice_menu(self, choice_num: int):
+        self.current_choice_num = choice_num
+
+    def current_choice_menu(self) -> Widget:
+        return self.layout_widget.layout[self.current_choice]
+
+
 class GameMenu:
-    """This class makes it easier to code menu UI behavior."""
+    """This class makes it easier to code menu UI behavior.(unrecommanded)"""
 
     def __init__(self, current_choice: int = 0):
         self.current_choice: int = current_choice
@@ -266,7 +286,6 @@ class TitleScene(scene_trans.Scene):
         self.font_titlemenu = pygame.font.Font(
             str(font_dir / "misaki_gothic.ttf"), 24)
 
-        # TODO: USE WIDGET
         self.menu_layout = UIBoxLayout(pos=[SCRN_WIDTH / 3, SCRN_HEIGHT / 3])
         self.menu_layout.spacing = 16
         self.menu_layout.add_widget(
@@ -278,6 +297,7 @@ class TitleScene(scene_trans.Scene):
         self.menu_layout.add_widget(
             TextWidget(self.font_titlemenu,
                        self.sm.game.gametext.get_text("title_exit")))
+        self.menu_ui = self.GameMenuWithUI(self.menu_layout)
         # game_start_textwidget = TextWidget(
         # self.sm.gametext.get_text("title_game_start"), pos=[SCRN_WIDTH / 2.1])
         # self.menu_layout.add_widget()
@@ -331,9 +351,9 @@ class TitleScene(scene_trans.Scene):
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP and self.current_menu_choice > 0:
-                self.current_menu_choice -= 1
-            elif event.key == pygame.K_DOWN and self.current_menu_choice < self.titlemenu_list_max_index:
+            if event.key == pygame.K_UP and self.menu_ui.current_choice > 0:
+                self.menu_ui.current_choice -= 1
+            elif event.key == pygame.K_DOWN and self.menu_ui.current_choice < self.menu_ui.current_choice:
                 self.current_menu_choice += 1
             elif event.key == pygame.K_z:
                 if self.titlemenu_keys[self.current_menu_choice] == "exit":
