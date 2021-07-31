@@ -60,14 +60,17 @@ class GameSceneManager(scene_trans.SceneManager):
 
 # TODO: make config scene to workable
 # TODO: make menu cursor workable
+# TODO: make screen camera
 
 
 class Widget:
     """This class use to make UI"""
 
-    def __init__(self, pos: list = [0, 0], size: list = [0, 0]) -> None:
+    def __init__(self, pos: list = [0, 0], size: list = [0, 0],
+                 id: str = "") -> None:
         self.pos = pos
         self.size = size
+        self.id = id
 
     def render(self):
         pass
@@ -97,13 +100,13 @@ class TextWidget(Widget):
         return self.font.render(self.text, *args, **kwargs)
 
 
-class Layout(Widget):
+class UILayout(Widget):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.layout: list[Widget] = []
 
 
-class UIBoxLayout(Layout):
+class UIBoxLayout(UILayout):
     """This class makes it easier to lay out Widgets"""
 
     def __init__(self, *args, **kwargs) -> None:
@@ -131,19 +134,84 @@ class UIBoxLayout(Layout):
             pass
 
 
-class GameMenuWithUI:
-    # TODO: make a class that can choose widgets from a layout instead of this.
-    def __init__(self, layout_widget: Layout, default_menu_choice: int = 0,
+# class MenuChoiceNum(int, object):
+#     def __iadd__(self, value, menu_item_num):
+#         if self.choice_num < self.menu_item_num() - 1:
+#             self += value
+#         else:
+#             self = 0
+#             return self
+
+#     def __isub__(self, value):
+#         if self > 0:
+#             self -= value
+#         else:
+#             self = self.menu_item_num() - 1
+#             return self
+
+
+class UIGameMenu(UIBoxLayout):
+    # TDOO make menu cursor
+    def __init__(self, default_menu_choice: int = 0,
                  *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.layout_widget = layout_widget
-        self.current_choice_num = default_menu_choice
+        self.__choice_num = default_menu_choice
 
-    def choice_menu(self, choice_num: int):
-        self.current_choice_num = choice_num
+    @property
+    def choice_num(self):
+        return self.__choice_num
 
-    def current_choice_menu(self) -> Widget:
-        return self.layout_widget.layout[self.current_choice]
+    @choice_num.setter
+    def choice_num(self, value):
+        # self.__choice_num = MenuChoiceNum(value)
+        # last_choice_num = self.__choice_num
+        if value < self.__choice_num:  # __iadd__
+            if self.__choice_num > 0:
+                self.__choice_num = value
+            else:
+                self.__choice_num = self.menu_item_num() - 1
+        elif value > self.__choice_num:  # __isub__
+            if self.__choice_num < self.menu_item_num() - 1:
+                self.__choice_num = value
+            else:
+                self.__choice_num = 0
+
+        # self.__choice_num = value
+        # if self.__choice_num
+
+    # def __choice_num__add__(self, value):
+    #     if self.choice_num < self.menu_item_num() - 1:
+    #         self.choice_num += value
+    #     else:
+    #         self.choice_num = 0
+    #         return self
+
+    # def __choice_num__sub__(self, value):
+    #     if self.choice_num > 0:
+    #         self.choice_num -= value
+    #     else:
+    #         self.choice_num = self.menu_item_num() - 1
+    #         return self
+
+    def current_choice(self) -> Widget:
+        return self.layout[self.choice_num]
+
+    def menu_item_num(self) -> int:
+        return len(self.layout)
+
+    def menu_cursor_pos(self, cursor_size: list, anchor: str = "left"):
+        """
+         Args:
+            anchor: you can use 'left' or 'right'
+        """
+        if anchor == "left":
+            cursor_pos_x = self.current_choice().pos[0] - cursor_size[0]
+            cursor_pos_y = self.current_choice().pos[1]
+        elif anchor == "right":
+            cursor_pos_x = self.current_choice(
+            ).pos[0] + self.current_choice().size[0]
+            cursor_pos_y = self.current_choice().pos[1]
+        return cursor_pos_x, cursor_pos_y
 
 
 class GameMenu:
@@ -191,33 +259,23 @@ class ConfigScene(scene_trans.Scene):
         self.current_menu_choice: int = 0
         self.text_surface_menu_cursor = self.font_menu_cursor.render(
             self.text_menu_cursor, False, WHITE)
+        self.menu_cursor_size = self.font_menu_cursor.size(
+            self.text_menu_cursor)
 
         self.font_menu = pygame.font.Font(
             str(font_dir / "misaki_gothic.ttf"), 24)
 
-        self.text_config_menu = {"cancel_config": {"text": self.sm.game.gametext.get_text("cancel_config"), "pos": None},
-                                 "confirm_config": {"text": self.sm.game.gametext.get_text("confirm_config"), "pos": None},
-                                 "lang": {"text": f"{self.sm.game.gametext.get_text('config_head_lang')}: {self.text_from_language_config()}", "pos": None}, }
+        self.menu_ui = UIGameMenu(pos=[SCRN_WIDTH / 2.75, SCRN_HEIGHT / 3.5])
+        self.menu_ui.add_widget(TextWidget(
+            self.font_menu, text=self.sm.game.gametext.get_text(
+                "cancel_config"),
+            id="cancel"))
+        self.menu_ui.add_widget(TextWidget(
+            self.font_menu, text=self.sm.game.gametext.get_text(
+                "confirm_config"),
+            id="confirm"))
 
-        self.text_config_menu["cancel_config"]["pos"] = [SCRN_WIDTH / 2.5 - self.font_menu.size(self.text_config_menu["cancel_config"]["text"])[
-            0] / 2, SCRN_HEIGHT / 4 - self.font_menu.size(self.text_config_menu["cancel_config"]["text"])[1] / 2]
-        self.text_surface_cancel_config = self.font_menu.render(
-            self.text_config_menu["cancel_config"]["text"], False, WHITE)
-
-        self.text_config_menu["confirm_config"]["pos"] = [self.text_config_menu["cancel_config"]["pos"][0],
-                                                          self.text_config_menu["cancel_config"]["pos"][1] + 8 + self.font_menu.size(self.text_config_menu["confirm_config"]["text"])[1]]
-        self.text_surface_confirm_config = self.font_menu.render(
-            self.text_config_menu["confirm_config"]["text"], False, WHITE)
-
-        self.text_config_menu["lang"]["pos"] = [self.text_config_menu["cancel_config"]["pos"][0],
-                                                self.text_config_menu["confirm_config"]["pos"][1] + 8 + self.font_menu.size(self.text_config_menu["lang"]["text"])[1]]
-        self.text_surface_lang = self.font_menu.render(
-            self.text_config_menu["lang"]["text"], False, WHITE)
-
-        self.config_menu_keys = list(self.text_config_menu.keys())
-        self.config_menu_list_max_index = len(self.config_menu_keys) - 1
-
-    def text_from_language_config(self):
+    def show_current_lang(self):
         language = self.sm.game.gameconfig.config["language"]
         if language == "jp":
             result = "日本語"
@@ -225,44 +283,26 @@ class ConfigScene(scene_trans.Scene):
             result = "English"
         return result
 
-    def calc_menu_cursor_pos(self):
-        return [self.text_config_menu["cancel_config"]["pos"][0] -
-                self.font_menu_cursor.size(self.text_menu_cursor)[0],
-                self.text_config_menu[
-                    self.config_menu_keys[self.current_menu_choice]]["pos"][1]]
-
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP and self.current_menu_choice > 0:
-                self.current_menu_choice -= 1
-            elif (event.key == pygame.K_DOWN and
-                  self.current_menu_choice < self.config_menu_list_max_index):
-                self.current_menu_choice += 1
+            if event.key == pygame.K_UP:
+                self.menu_ui.choice_num -= 1
+            elif event.key == pygame.K_DOWN:
+                self.menu_ui.choice_num += 1
             elif event.key == pygame.K_z:
-                if self.config_menu_keys[
-                        self.current_menu_choice] == "cancel_config":
+                if self.menu_ui.current_choice().id == "cancel":
                     self.sm.set_current_scene("title")
-                if self.config_menu_keys[
-                        self.current_menu_choice] == "confirm_config":
+                if self.menu_ui.current_choice().id == "confirm":
                     self.sm.set_current_scene("title")
-                if self.config_menu_keys[
-                        self.current_menu_choice] == "lang":
-                    pass
 
     def run(self, dt):
         self.sm.game.screen.fill((0, 0, 0))
-        self.sm.game.screen.blit(
-            self.text_surface_cancel_config,
-            self.text_config_menu["cancel_config"]["pos"])
-        self.sm.game.screen.blit(
-            self.text_surface_confirm_config,
-            self.text_config_menu["confirm_config"]["pos"])
-        self.sm.game.screen.blit(
-            self.text_surface_lang, self.text_config_menu["lang"]["pos"])
-        # self.sm.game.screen.blit(
-        # self.text_surface_lang, self.text_config_menu["volume"]["pos"])
+        for widget in self.menu_ui.layout:
+            self.sm.game.screen.blit(
+                widget.render(False, WHITE), widget.pos)
         self.sm.game.screen.blit(self.text_surface_menu_cursor,
-                                 self.calc_menu_cursor_pos())
+                                 self.menu_ui.menu_cursor_pos(
+                                     self.menu_cursor_size, "left"))
 
 
 class TitleScene(scene_trans.Scene):
@@ -277,63 +317,29 @@ class TitleScene(scene_trans.Scene):
         self.text_surface_title = self.font_title.render(
             self.text_title, False, WHITE)
         self.text_title_pos = [
-            SCRN_WIDTH / 2 - self.font_title.size(self.text_title)[0] / 2,
+            SCRN_WIDTH / 2.1 - self.font_title.size(self.text_title)[0] / 2,
             SCRN_HEIGHT / 2 - self.font_title.size(self.text_title)[1]]
         self.title_was_being_showed = False
-        self.title_showing_delta_frame = 0
-        self.title_showing_interval = 2
+        self.title_anim_delta_frame = 0
+        self.title_anim_interval = 2
 
         self.font_titlemenu = pygame.font.Font(
             str(font_dir / "misaki_gothic.ttf"), 24)
 
-        self.menu_layout = UIBoxLayout(pos=[SCRN_WIDTH / 3, SCRN_HEIGHT / 3])
-        self.menu_layout.spacing = 16
-        self.menu_layout.add_widget(
+        self.menu_ui = UIGameMenu(pos=[SCRN_WIDTH / 3, SCRN_HEIGHT / 2.9])
+        self.menu_ui.spacing = 16
+        self.menu_ui.add_widget(
             TextWidget(self.font_titlemenu,
-                       self.sm.game.gametext.get_text("title_game_start")))
-        self.menu_layout.add_widget(
+                       self.sm.game.gametext.get_text("title_game_start"),
+                       id="start"))
+        self.menu_ui.add_widget(
             TextWidget(self.font_titlemenu,
-                       self.sm.game.gametext.get_text("title_config")))
-        self.menu_layout.add_widget(
+                       self.sm.game.gametext.get_text("title_config"),
+                       id="config"))
+        self.menu_ui.add_widget(
             TextWidget(self.font_titlemenu,
-                       self.sm.game.gametext.get_text("title_exit")))
-        self.menu_ui = self.GameMenuWithUI(self.menu_layout)
-        # game_start_textwidget = TextWidget(
-        # self.sm.gametext.get_text("title_game_start"), pos=[SCRN_WIDTH / 2.1])
-        # self.menu_layout.add_widget()
-        # self.menu_layout.add_widget(TextWidget(
-        # self.sm.gametext.get_text("title_config")))
-        # self.menu_layout.add_widget(TextWidget(
-        #     self.sm.gametext.get_text("title_exit")))
-
-        # self.title_menu = GameMenu()
-        # self.title_menu.home_pos = [
-        #     SCRN_WIDTH / 2.1 -
-        #     self.font_titlemenu.size(
-        #         self.sm.game.gametext.get_text("title_game_start"))[0] / 2,
-        #     SCRN_HEIGHT / 3 + self.font_titlemenu.size(
-        #         self.sm.game.gametext.get_text("title_game_start"))[1]]
-        # self.title_menu.add_to_menu(
-        #     "start_game", self.sm.game.gametext.get_text("title_game_start"))
-        # self.title_menu.add_to_menu(
-        #     "game_config", self.sm.game.gametext.get_text("title_config"),
-        #     pos_y_to_display=16 + self.font_titlemenu.size(
-        #         self.sm.game.gametext.get_text("title_config"))[1])
-        # self.title_menu.add_to_menu(
-        #     "exit", self.sm.game.gametext.get_text("title_exit"),
-        #     pos_y_to_display=16 + self.font_titlemenu.size(
-        #         self.title_menu.menu["game_config"]["text"])[1] +
-        #     16 + self.font_titlemenu.size(
-        #         self.sm.game.gametext.get_text("title_exit"))[1])
-
-        # self.text_surface_start_game = self.font_titlemenu.render(
-        #     self.title_menu.menu["start_game"]["text"], False, WHITE)
-        # self.text_surface_game_config = self.font_titlemenu.render(
-        #     self.title_menu.menu["game_config"]["text"], False, WHITE)
-        # self.text_surface_exit = self.font_titlemenu.render(
-        #     self.title_menu.menu["exit"]["text"], False, WHITE)
-
-        # self.titlemenu_list_max_index = len(self.title_menu.menu_keys()) - 1
+                       self.sm.game.gametext.get_text("title_exit"),
+                       id="exit"))
 
         self.font_menu_cursor = pygame.font.Font(
             str(font_dir / "misaki_gothic.ttf"), 24)
@@ -341,47 +347,44 @@ class TitleScene(scene_trans.Scene):
         self.current_menu_choice: int = 0
         self.text_surface_menu_cursor = self.font_titlemenu.render(
             self.text_menu_cursor, False, WHITE)
+        self.menu_cursor_size = self.font_menu_cursor.size(
+            self.text_menu_cursor)
 
     def calc_menu_cursor_pos(self):
         return [self.title_menu.menu["start_game"]["pos"][0] -
-                self.font_menu_cursor.size(self.text_menu_cursor)[0],
+                self.menu_cursor_size[0],
                 self.title_menu.menu[
                     self.title_menu.menu_keys()[
                         self.current_menu_choice]]["pos"][1]]
 
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP and self.menu_ui.current_choice > 0:
-                self.menu_ui.current_choice -= 1
-            elif event.key == pygame.K_DOWN and self.menu_ui.current_choice < self.menu_ui.current_choice:
-                self.current_menu_choice += 1
+            if event.key == pygame.K_UP:
+                self.menu_ui.choice_num -= 1
+            elif event.key == pygame.K_DOWN:
+                self.menu_ui.choice_num += 1
             elif event.key == pygame.K_z:
-                if self.titlemenu_keys[self.current_menu_choice] == "exit":
+                if self.menu_ui.current_choice().id == "exit":
                     sys.exit()
-                if self.titlemenu_keys[self.current_menu_choice] == "game_config":
+                if self.menu_ui.current_choice().id == "config":
                     self.sm.set_current_scene("config")
 
     def run(self, dt):
         self.sm.game.screen.fill((0, 0, 0))
         if not self.title_was_being_showed:
-            self.title_showing_delta_frame += 1
-            if self.title_showing_delta_frame % self.title_showing_interval == 0:
+            self.title_anim_delta_frame += 1
+            if self.title_anim_delta_frame % self.title_anim_interval == 0:
                 self.text_title_pos[1] -= 5 * dt
             if self.text_title_pos[1] <= SCRN_HEIGHT / 5:
                 pygame.mixer.music.play(-1, fade_ms=7800)
                 self.title_was_being_showed = True
         if self.title_was_being_showed:
-            for widget in self.menu_layout.layout:
+            for widget in self.menu_ui.layout:
                 self.sm.game.screen.blit(
                     widget.render(False, WHITE), widget.pos)
-            # self.sm.game.screen.blit(self.text_surface_start_game,
-            #                          self.title_menu.menu["start_game"]["pos"])
-            # self.sm.game.screen.blit(self.text_surface_game_config,
-            #                          self.title_menu.menu["game_config"]["pos"])
-            # self.sm.game.screen.blit(self.text_surface_exit,
-            #                          self.title_menu.menu["exit"]["pos"])
-            # self.sm.game.screen.blit(self.text_surface_menu_cursor,
-            #                          self.calc_menu_cursor_pos())
+            self.sm.game.screen.blit(self.text_surface_menu_cursor,
+                                     self.menu_ui.menu_cursor_pos(
+                                         self.menu_cursor_size, "left"))
         self.sm.game.screen.blit(self.text_surface_title, self.text_title_pos)
 
 
