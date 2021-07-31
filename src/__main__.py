@@ -59,6 +59,7 @@ class GameSceneManager(scene_trans.SceneManager):
         self.game = game
 
 # TODO: make config scene to workable
+# TODO: make menu cursor workable
 
 
 class Widget:
