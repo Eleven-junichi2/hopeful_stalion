@@ -134,22 +134,6 @@ class UIBoxLayout(UILayout):
             pass
 
 
-# class MenuChoiceNum(int, object):
-#     def __iadd__(self, value, menu_item_num):
-#         if self.choice_num < self.menu_item_num() - 1:
-#             self += value
-#         else:
-#             self = 0
-#             return self
-
-#     def __isub__(self, value):
-#         if self > 0:
-#             self -= value
-#         else:
-#             self = self.menu_item_num() - 1
-#             return self
-
-
 class UIGameMenu(UIBoxLayout):
     # TDOO make menu cursor
     def __init__(self, default_menu_choice: int = 0,
@@ -163,8 +147,6 @@ class UIGameMenu(UIBoxLayout):
 
     @choice_num.setter
     def choice_num(self, value):
-        # self.__choice_num = MenuChoiceNum(value)
-        # last_choice_num = self.__choice_num
         if value < self.__choice_num:  # __iadd__
             if self.__choice_num > 0:
                 self.__choice_num = value
@@ -175,23 +157,6 @@ class UIGameMenu(UIBoxLayout):
                 self.__choice_num = value
             else:
                 self.__choice_num = 0
-
-        # self.__choice_num = value
-        # if self.__choice_num
-
-    # def __choice_num__add__(self, value):
-    #     if self.choice_num < self.menu_item_num() - 1:
-    #         self.choice_num += value
-    #     else:
-    #         self.choice_num = 0
-    #         return self
-
-    # def __choice_num__sub__(self, value):
-    #     if self.choice_num > 0:
-    #         self.choice_num -= value
-    #     else:
-    #         self.choice_num = self.menu_item_num() - 1
-    #         return self
 
     def current_choice(self) -> Widget:
         return self.layout[self.choice_num]
@@ -212,36 +177,6 @@ class UIGameMenu(UIBoxLayout):
             ).pos[0] + self.current_choice().size[0]
             cursor_pos_y = self.current_choice().pos[1]
         return cursor_pos_x, cursor_pos_y
-
-
-class GameMenu:
-    """This class makes it easier to code menu UI behavior.(unrecommanded)"""
-
-    def __init__(self, current_choice: int = 0):
-        self.current_choice: int = current_choice
-        self.menu: dict[str] = {}
-        self.home_pos: list[int, int] = [None, None]
-        self.menu_spacing: list[int, int] = [0, 0]
-
-    def unset_home_pos_of_ui(self):
-        self.home_pos = [None, None]
-
-    def add_to_menu(self, menu_key: str, menu_text: str,
-                    pos_x_to_display: int = None, pos_y_to_display: int = None,
-                    pos_to_absolute: bool = True):
-        """If self.home_pos is set, arguments set position relative to
-           home_pos."""
-        self.menu[menu_key] = {"text": menu_text,
-                               "pos": [(self.home_pos[0] or 0) +
-                                       (pos_x_to_display or 0),
-                                       (self.home_pos[1] or 0) +
-                                       (pos_y_to_display or 0)]}
-
-    def menu_keys(self) -> list:
-        return list(self.menu.keys())
-
-    def current_choice_menu_key(self) -> str:
-        return self.menu_keys()[self.current_choice]
 
 
 class NewGameScene(scene_trans.Scene):
@@ -309,7 +244,8 @@ class TitleScene(scene_trans.Scene):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         pygame.mixer.music.load(str(music_dir / "hopeful_stalion_theme.ogg"))
-
+        pygame.mixer.music.set_volume(
+            self.sm.game.gameconfig.config["bgm_volume"])
         self.font_title = pygame.font.Font(
             str(font_dir / "misaki_gothic.ttf"), 48)
 
