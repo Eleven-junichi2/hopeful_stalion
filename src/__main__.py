@@ -27,6 +27,44 @@ music_dir = sound_dir / "music"
 sound_effect_dir = sound_dir / "se"
 
 
+class PlayerData:
+    def __init__(self):
+        self.player_name: str = ""
+        self.racing_uniform = None
+
+
+class GameDataBank:
+    # TODO: make save data manager
+    def __init__(self):
+        self.data: dict = {}
+
+    def exist_savedata(self) -> bool:
+        return False
+
+    def store(self, key, value):
+        """add item to self.data"""
+        pass
+
+    def save(self, key):
+        """this method write self.data to file"""
+        pass
+
+    def save_all(self):
+        """this method write self.data to file"""
+        pass
+
+    def load(self):
+        pass
+
+    def clear(self):
+        """this method DO NOT delete savedata file."""
+        self.data = {}
+
+    def delete_file(self):
+        """this method delete savadata file"""
+        pass
+
+
 class GameConfig:
     def __init__(self):
         self.config = {}
@@ -59,7 +97,6 @@ class GameSceneManager(scene_trans.SceneManager):
         self.game = game
 
 # TODO: make config scene to workable
-# TODO: make menu cursor workable
 # TODO: make screen camera
 
 
@@ -135,7 +172,6 @@ class UIBoxLayout(UILayout):
 
 
 class UIGameMenu(UIBoxLayout):
-    # TDOO make menu cursor
     def __init__(self, default_menu_choice: int = 0,
                  *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -179,9 +215,29 @@ class UIGameMenu(UIBoxLayout):
         return cursor_pos_x, cursor_pos_y
 
 
-class NewGameScene(scene_trans.Scene):
+class SelectGameDataScene(scene_trans.Scene):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        pass
+
+    def handle_event(self, event):
+        pass
+
+    def run(self, dt):
+        self.sm.game.screen.fill((0, 0, 0))
+
+
+class NewGameScene(scene_trans.Scene):
+    # TODO make new game scene
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        pass
+
+    def handle_event(self, event):
+        pass
+
+    def run(self, dt):
+        self.sm.game.screen.fill((0, 0, 0))
 
 
 class ConfigScene(scene_trans.Scene):
@@ -286,13 +342,6 @@ class TitleScene(scene_trans.Scene):
         self.menu_cursor_size = self.font_menu_cursor.size(
             self.text_menu_cursor)
 
-    def calc_menu_cursor_pos(self):
-        return [self.title_menu.menu["start_game"]["pos"][0] -
-                self.menu_cursor_size[0],
-                self.title_menu.menu[
-                    self.title_menu.menu_keys()[
-                        self.current_menu_choice]]["pos"][1]]
-
     def handle_event(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
@@ -304,6 +353,8 @@ class TitleScene(scene_trans.Scene):
                     sys.exit()
                 if self.menu_ui.current_choice().id == "config":
                     self.sm.set_current_scene("config")
+                if self.menu_ui.current_choice().id == "start":
+                    self.sm.set_current_scene("new_game")
 
     def run(self, dt):
         self.sm.game.screen.fill((0, 0, 0))
@@ -338,6 +389,8 @@ class Game:
         self.sm = GameSceneManager(self.screen, self)
         self.sm.append_scene("title", TitleScene(self.sm))
         self.sm.append_scene("config", ConfigScene(self.sm))
+        self.sm.append_scene("new_game", NewGameScene(self.sm))
+        self.sm.append_scene("select_game_data", SelectGameDataScene(self.sm))
         self.sm.set_current_scene("title")
 
     def run(self) -> None:
