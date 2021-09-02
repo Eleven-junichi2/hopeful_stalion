@@ -40,19 +40,6 @@ class PlayerData:
         self.racing_uniform = None
 
 
-class Sprite(pygame.sprite.Sprite):
-    # TODO make sprite class which can animation
-    # TODO make test this class
-    def __init__(self, width, height, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.images: list[pygame.Surface] = []
-        self.images.append(pygame.Surface([width, height]))
-        self.index: int = 0
-        self.image = self.images[self.index]
-        self.rect = self.image.get_rect()
-        self.rect = self.image.get_rect()
-
-
 class GameDataBank:
     def __init__(self, save_dir):
         self.dir = save_dir
@@ -350,7 +337,7 @@ class TitleScene(scene_trans.Scene):
         self.title_was_being_showed = False
         self.title_anim_delta_frame = 0
         self.title_anim_interval = 2
-        self.horse_sprite =
+        # self.horse_sprite =
 
         self.font_titlemenu = pygame.font.Font(
             str(font_dir / "misaki_gothic.ttf"), 24)
