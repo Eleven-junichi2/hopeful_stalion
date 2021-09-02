@@ -3,6 +3,12 @@ import sys
 import json
 
 import pygame
+import pygame.font
+import pygame.mixer
+import pygame.display
+import pygame.time
+import pygame.event
+import pygame.sprite
 
 from gamesystem import scene_trans
 
@@ -25,6 +31,7 @@ image_dir = asset_dir / "image"
 sound_dir = asset_dir / "sound"
 music_dir = sound_dir / "music"
 sound_effect_dir = sound_dir / "se"
+savedata_dir = MAIN_PRG_DIR / "savedata"
 
 
 class PlayerData:
@@ -33,13 +40,30 @@ class PlayerData:
         self.racing_uniform = None
 
 
+class Sprite(pygame.sprite.Sprite):
+    # TODO make sprite class which can animation
+    # TODO make test this class
+    def __init__(self, width, height, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.images: list[pygame.Surface] = []
+        self.images.append(pygame.Surface([width, height]))
+        self.index: int = 0
+        self.image = self.images[self.index]
+        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect()
+
+
 class GameDataBank:
-    # TODO: make save data manager
-    def __init__(self):
+    def __init__(self, save_dir):
+        self.dir = save_dir
         self.data: dict = {}
 
     def exist_savedata(self) -> bool:
         return False
+
+    def savedata_names(self):
+        # make this method
+        return []
 
     def store(self, key, value):
         """add item to self.data"""
@@ -98,6 +122,7 @@ class GameSceneManager(scene_trans.SceneManager):
 
 # TODO: make config scene to workable
 # TODO: make screen camera
+# TODO: make widget clickable
 
 
 class Widget:
@@ -216,9 +241,19 @@ class UIGameMenu(UIBoxLayout):
 
 
 class SelectGameDataScene(scene_trans.Scene):
+    # TODO make scene: select and start savedata
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        pass
+        self.menu_ui = UIGameMenu(pos=[SCRN_WIDTH / 2.75, SCRN_HEIGHT / 3.5])
+        # self.sm.game.databank
+        # self.menu_ui.add_widget(TextWidget(
+        #     self.font_menu, text=self.sm.game.gametext.get_text(
+        #         "cancel_c"),
+        #     id="cancel"))
+        # self.menu_ui.add_widget(TextWidget(
+        #     self.font_menu, text=self.sm.game.gametext.get_text(
+        #         "confirm_config"),
+        #     id="confirm"))
 
     def handle_event(self, event):
         pass
@@ -297,11 +332,12 @@ class ConfigScene(scene_trans.Scene):
 
 
 class TitleScene(scene_trans.Scene):
+    # TODO background animation
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        pygame.mixer.music.load(str(music_dir / "hopeful_stalion_theme.ogg"))
-        pygame.mixer.music.set_volume(
-            self.sm.game.gameconfig.config["bgm_volume"])
+        # pygame.mixer.music.load(str(music_dir / "hopeful_stalion_theme.ogg"))
+        # pygame.mixer.music.set_volume(
+        #     self.sm.game.gameconfig.config["bgm_volume"])
         self.font_title = pygame.font.Font(
             str(font_dir / "misaki_gothic.ttf"), 48)
 
@@ -314,6 +350,7 @@ class TitleScene(scene_trans.Scene):
         self.title_was_being_showed = False
         self.title_anim_delta_frame = 0
         self.title_anim_interval = 2
+        self.horse_sprite =
 
         self.font_titlemenu = pygame.font.Font(
             str(font_dir / "misaki_gothic.ttf"), 24)
@@ -363,7 +400,7 @@ class TitleScene(scene_trans.Scene):
             if self.title_anim_delta_frame % self.title_anim_interval == 0:
                 self.text_title_pos[1] -= 5 * dt
             if self.text_title_pos[1] <= SCRN_HEIGHT / 5:
-                pygame.mixer.music.play(-1, fade_ms=7800)
+                # pygame.mixer.music.play(-1, fade_ms=7800)
                 self.title_was_being_showed = True
         if self.title_was_being_showed:
             for widget in self.menu_ui.layout:
@@ -372,6 +409,7 @@ class TitleScene(scene_trans.Scene):
             self.sm.game.screen.blit(self.text_surface_menu_cursor,
                                      self.menu_ui.menu_cursor_pos(
                                          self.menu_cursor_size, "left"))
+
         self.sm.game.screen.blit(self.text_surface_title, self.text_title_pos)
 
 
@@ -386,6 +424,7 @@ class Game:
         self.gametext = GameLocalizedText()
         self.gameconfig = GameConfig()
         self.gametext.language = self.gameconfig.config["language"]
+        self.databank = GameDataBank(savedata_dir)
         self.sm = GameSceneManager(self.screen, self)
         self.sm.append_scene("title", TitleScene(self.sm))
         self.sm.append_scene("config", ConfigScene(self.sm))
