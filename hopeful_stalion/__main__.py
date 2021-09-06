@@ -11,6 +11,7 @@ import pygame.display
 import pygame.time
 import pygame.event
 import pygame.sprite
+import pygame.image
 
 
 GAME_TITLE = "Hopeful stalion"
@@ -231,7 +232,8 @@ class UIGameMenu(UIBoxLayout):
 class HorseSprite(sprite.Sprite):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.append_image()
+        self.images.append((pygame.image.load(str(image_dir / "horse.png"))))
+        self.rect = self.image.get_rect()
 
     def update(self):
         if self.index >= len(self.images):
@@ -409,6 +411,8 @@ class TitleScene(scene_trans.Scene):
             self.sm.game.screen.blit(self.text_surface_menu_cursor,
                                      self.menu_ui.menu_cursor_pos(
                                          self.menu_cursor_size, "left"))
+        self.horse_sprite.update()
+        self.horse_sprite.draw(self.sm.game.screen)
 
         self.sm.game.screen.blit(self.text_surface_title, self.text_title_pos)
 
