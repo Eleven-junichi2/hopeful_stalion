@@ -1,4 +1,6 @@
 from pathlib import Path
+from gamesystem import scene_trans
+from gamesystem import sprite
 import sys
 import json
 
@@ -10,7 +12,6 @@ import pygame.time
 import pygame.event
 import pygame.sprite
 
-from gamesystem import scene_trans
 
 GAME_TITLE = "Hopeful stalion"
 MAIN_PRG_DIR = Path(__file__).absolute().parent
@@ -227,6 +228,18 @@ class UIGameMenu(UIBoxLayout):
         return cursor_pos_x, cursor_pos_y
 
 
+class HorseSprite(sprite.Sprite):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.append_image()
+
+    def update(self):
+        if self.index >= len(self.images):
+            self.index = 0
+        self.image = self.images[self.index]
+        self.index += 1
+
+
 class SelectGameDataScene(scene_trans.Scene):
     # TODO make scene: select and start savedata
     def __init__(self, *args, **kwargs):
@@ -337,7 +350,7 @@ class TitleScene(scene_trans.Scene):
         self.title_was_being_showed = False
         self.title_anim_delta_frame = 0
         self.title_anim_interval = 2
-        # self.horse_sprite =
+        self.horse_sprite = HorseSprite()
 
         self.font_titlemenu = pygame.font.Font(
             str(font_dir / "misaki_gothic.ttf"), 24)
