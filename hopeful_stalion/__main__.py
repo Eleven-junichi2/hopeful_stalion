@@ -233,7 +233,6 @@ class HorseSprite(sprite.Sprite):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.images.append((pygame.image.load(str(image_dir / "horse.png"))))
-        self.rect = self.image.get_rect()
 
     def update(self):
         if self.index >= len(self.images):

@@ -10,6 +10,7 @@ class Sprite(pygame.sprite.Sprite):
         self.images.append(pygame.Surface([0, 0]))
         self.index: int = 0
         self.__image = self.images[self.index]
+        self.rect = self.image.get_rect()
 
     @property
     def image(self):
@@ -18,7 +19,7 @@ class Sprite(pygame.sprite.Sprite):
     @image.setter
     def image(self, value: pygame.Surface):
         self.__image = value
-        self.image.get_rect()
+        self.__image.get_rect()
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
