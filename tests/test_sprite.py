@@ -9,7 +9,13 @@ from hopeful_stalion.gamesystem import sprite
 class NotImagesDefinedSprite(sprite.Sprite):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        pass
+
+
+class ImagesDefinedButEmptySprite(sprite.Sprite):
+    images = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
 class CorrectSprite(sprite.Sprite):
@@ -19,6 +25,7 @@ class CorrectSprite(sprite.Sprite):
 
 
 def test_sprite():
-    with pytest.raises(IndexError):
-        sprite_instance = NotImagesDefinedSprite()
-        sprite_instance.anim_index = 1
+    with pytest.raises(NotImplementedError):
+        NotImagesDefinedSprite()
+    with pytest.raises(sprite.ImagesHasNoItemError):
+        ImagesDefinedButEmptySprite()

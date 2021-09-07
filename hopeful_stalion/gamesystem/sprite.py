@@ -25,6 +25,8 @@ class Sprite(pygame.sprite.Sprite, metaclass=ABCMeta):
         images list[pygame.Surface]:
         anim_index int:
         image pygame.Surface: draw method blit a surface with this attribute.
+    
+    Example:
     """
 
     def __init__(self, *args, **kwargs):
