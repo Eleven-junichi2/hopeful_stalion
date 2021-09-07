@@ -235,10 +235,9 @@ class HorseSprite(sprite.Sprite):
         self.images.append((pygame.image.load(str(image_dir / "horse.png"))))
 
     def update(self):
-        if self.index >= len(self.images):
-            self.index = 0
-        self.image = self.images[self.index]
-        self.index += 1
+        if self.anim_index >= len(self.images):
+            self.anim_index = 0
+        self.anim_index += 1
 
 
 class SelectGameDataScene(scene_trans.Scene):
