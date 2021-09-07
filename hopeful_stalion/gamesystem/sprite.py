@@ -1,5 +1,4 @@
 from abc import ABCMeta
-import traceback
 
 import pygame
 import pygame.sprite
@@ -25,7 +24,7 @@ class Sprite(pygame.sprite.Sprite, metaclass=ABCMeta):
         images list[pygame.Surface]:
         anim_index int:
         image pygame.Surface: draw method blit a surface with this attribute.
-    
+
     Example:
     """
 
