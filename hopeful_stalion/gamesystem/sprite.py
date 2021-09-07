@@ -38,7 +38,14 @@ class Sprite(pygame.sprite.Sprite, metaclass=ABCMeta):
     @anim_index.setter
     def anim_index(self, value):
         self.__anim_index = value
-        self.image = self.images[self.anim_index]
+        try:
+            self.image = self.images[self.anim_index]
+        except IndexError as e:
+            print(
+                """Hint: 'images' list object need to have some Surface object as item because
+                'image' attribute is set from item of 'images' indexed by
+                anim_index.""")
+            raise(e)
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)

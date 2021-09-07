@@ -19,9 +19,6 @@ class CorrectSprite(sprite.Sprite):
 
 
 def test_sprite():
-    # with pytest.raises(AttributeError):
-    sprite_instance = NotImagesDefinedSprite()
-    # sprite_instance = CorrectSprite()
-    # sprite_instance.anim_index = 1
-    # with pytest.raises(TypeError):
-    #     CorrectSprite()
+    with pytest.raises(IndexError):
+        sprite_instance = NotImagesDefinedSprite()
+        sprite_instance.anim_index = 1
