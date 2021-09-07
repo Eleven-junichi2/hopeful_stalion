@@ -230,14 +230,16 @@ class UIGameMenu(UIBoxLayout):
 
 
 class HorseSprite(sprite.Sprite):
+    images = [pygame.image.load(str(image_dir / "horse.png"))]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.images.append((pygame.image.load(str(image_dir / "horse.png"))))
+        # self.image = self.images[self.anim_index]
 
     def update(self):
         if self.anim_index >= len(self.images):
             self.anim_index = 0
-        self.anim_index += 1
+        # self.anim_index += 1
 
 
 class SelectGameDataScene(scene_trans.Scene):
