@@ -14,7 +14,8 @@ class ImagesHasNoItemError(Exception):
 
 
 class Sprite(pygame.sprite.Sprite, metaclass=ABCMeta):
-    """
+    """This abstract class use to define sprite with some images to animation.
+
     'images' list object need to have some Surface object as item because
     'image' attribute is set from item of 'images' indexed by anim_index.
     Thus,'images' must be defined as class attribute that contain some Surface
