@@ -1,3 +1,6 @@
+import pygame.font
+
+
 class Widget:
     """This class use to make UI"""
 
