@@ -217,7 +217,7 @@ class UIGameMenu(UIBoxLayout):
     def menu_cursor_pos(self, cursor_size: list, anchor: str = "left"):
         """
          Args:
-            anchor: you can use 'left' or 'right'
+            anchor (str): 'left' or 'right'
         """
         if anchor == "left":
             cursor_pos_x = self.current_choice().pos[0] - cursor_size[0]

@@ -3,6 +3,8 @@ from abc import ABCMeta
 import pygame
 import pygame.sprite
 
+# TODO make Sprite class loadable spritesheet
+
 
 class ImagesHasNoItemError(Exception):
     """This exception raise when images attribute is invalid value."""
@@ -11,6 +13,23 @@ class ImagesHasNoItemError(Exception):
         return """'images' list object need to have some Surface object
                 as item because 'image' attribute is set from item of 'images'
                 indexed by anim_index."""
+
+
+def image_from_sheet(
+        self, image: pygame.Surface,
+        x: int, y: int, w: int, h: int) -> pygame.Surface:
+    """extract a image from image like spritesheet.
+
+    Args:
+        x (int):
+        y (int):
+        w (int): width
+        h (int): height
+    """
+    new_image = pygame.Surface((w, h))
+    # sprite.set_colorkey(0, 0 ,0)
+    new_image.blit(image, (0, 0), (x, y, w, h))
+    return new_image
 
 
 class Sprite(pygame.sprite.Sprite, metaclass=ABCMeta):
@@ -31,9 +50,7 @@ class Sprite(pygame.sprite.Sprite, metaclass=ABCMeta):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.images: list[pygame.Surface] = []
         self.anim_index: int = 0
-        # self.image: pygame.Surface =
 
     @property
     def images(self):
