@@ -49,8 +49,8 @@ class UIBoxLayout(UILayout):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.orientaion = "vertical"
-        self.spacing = 0
+        self.orientaion: str = "vertical"
+        self.spacing: int = 0
 
     def add_widget(self, widget: Widget):
         layout_size = len(self.layout)
